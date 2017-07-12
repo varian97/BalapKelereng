@@ -21,7 +21,8 @@ public class MarbleController : MonoBehaviour {
 	void Update () {
 		if (!isPaused) {
 			rb.isKinematic = false;
-			rb.AddForce (new Vector3 (gameCamera.transform.rotation.z, 0, gameCamera.transform.rotation.x) * collisionFactor);
+			rb.AddForce (new Vector3 (gameCamera.transform.rotation.z * -1, 0, gameCamera.transform.rotation.x) * collisionFactor);
+			//rb.AddForce(Input.acceleration * 5.0f);
 		} else {
 			rb.isKinematic = true;
 		}
@@ -32,6 +33,12 @@ public class MarbleController : MonoBehaviour {
 			player.GetComponent<PlayerController> ().SetEndGame (true);
 			ground.GetComponent<GroundController> ().SetEndGame (true);
 			Debug.Log ("GameOver");
+		}
+	}
+
+	void OnCollisionExit(Collision other){
+		if (other.gameObject.tag == "spoon") {
+			player.GetComponent<PlayerController> ().SetProbablyFall (true);
 		}
 	}
 

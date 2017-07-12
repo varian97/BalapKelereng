@@ -5,7 +5,7 @@ using UnityEngine.UI;
 
 public class PlayerController : MonoBehaviour {
 	public GameObject pointer;
-	private bool endGame, isPaused;
+	private bool endGame, isPaused, isBallProbablyFall;
 
 	public GameObject ground1;
 	public GameObject ground2;
@@ -39,6 +39,7 @@ public class PlayerController : MonoBehaviour {
 		instSpoon = null;
 		endGame = false;
 		isPaused = true;
+		isBallProbablyFall = false;
 		marblesPos = marbles.transform.position;
 	}
 
@@ -114,6 +115,10 @@ public class PlayerController : MonoBehaviour {
 		endGame = end;
 	}
 
+	public void SetProbablyFall(bool fall) {
+		isBallProbablyFall = fall;
+	}
+
 	private void GameOver() {
 		gameOverImage.SetActive(true);
 		pointer.SetActive (true);
@@ -136,7 +141,7 @@ public class PlayerController : MonoBehaviour {
 	}
 
 	IEnumerator StartCountDown() {
-		if (!endGame) {
+		if (!endGame && !isBallProbablyFall) {
 			isPaused = true;
 			marbles.GetComponent<MarbleController> ().SetPause (true);
 			ground1.GetComponent<GroundController> ().SetPause (true);
