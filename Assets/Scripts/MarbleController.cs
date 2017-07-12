@@ -11,12 +11,20 @@ public class MarbleController : MonoBehaviour {
 	public GameObject player;
 	public GameObject ground;
 
+	private bool isPaused;
+
 	void Start () {
+		isPaused = true;
 		rb = GetComponent<Rigidbody> ();
 	}
 
 	void Update () {
-		rb.AddForce (new Vector3(gameCamera.transform.rotation.z,0,gameCamera.transform.rotation.x) * collisionFactor);
+		if (!isPaused) {
+			rb.isKinematic = false;
+			rb.AddForce (new Vector3 (gameCamera.transform.rotation.z, 0, gameCamera.transform.rotation.x) * collisionFactor);
+		} else {
+			rb.isKinematic = true;
+		}
 	}
 
 	void OnCollisionEnter(Collision other){
@@ -25,5 +33,9 @@ public class MarbleController : MonoBehaviour {
 			ground.GetComponent<GroundController> ().SetEndGame (true);
 			Debug.Log ("GameOver");
 		}
+	}
+
+	public void SetPause(bool pause) {
+		isPaused = pause;
 	}
 }
