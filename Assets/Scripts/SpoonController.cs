@@ -15,6 +15,6 @@ public class SpoonController : MonoBehaviour {
 	// Update is called once per frame
 	void Update () {
 		//transform.localEulerAngles = new Vector3 (gameCamera.transform.rotation.x, 0, gameCamera.transform.rotation.z);
-		transform.localEulerAngles = new Vector3 (0, 0, 0);
+		transform.RotateAround(gameCamera.transform.forward, new Vector3(1,0,0), gameCamera.transform.rotation.x);
 	}
 }
