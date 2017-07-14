@@ -31,6 +31,10 @@ public class PlayerController : MonoBehaviour {
 	public Text distanceText;
 
 	public Text countdownText;
+	private int checkPoint;
+	public GameObject panel;
+
+	public Text notif;
 
 	void Awake () {
 		listOfSpoons = Resources.LoadAll ("Spoons", typeof(GameObject));
@@ -38,6 +42,7 @@ public class PlayerController : MonoBehaviour {
 		indexSendok = 0;
 		distance = 0;
 		score = 0;
+		checkPoint = 0;
 		instSpoon = null;
 		endGame = false;
 		isPaused = true;
@@ -59,10 +64,10 @@ public class PlayerController : MonoBehaviour {
 		} else if (!endGame && !isPaused) {
 			distance += Time.deltaTime;
 			if (transform.position.z > ground1.transform.position.z) {
-				if (Vector3.Distance (transform.position, ground2.transform.position) < 75f) {
+				if (Vector3.Distance (transform.position, ground2.transform.position) < 101.6f) {
 					float x = ground2.transform.position.x;
 					float y = ground2.transform.position.y;
-					float z = ground2.transform.position.z + 161.1f;
+					float z = ground2.transform.position.z + 152.6f;
 
 					ground1.transform.position = new Vector3 (x, y, z);
 				}
@@ -79,7 +84,8 @@ public class PlayerController : MonoBehaviour {
 			}
 
 			// check and change spoons
-			if (distance > 30 && distance <= 60 && indexSendok < 1) {
+			if ((distance > 30 && distance <= 60 && indexSendok < 1) ||
+				(distance > 60 && indexSendok < 2) ) {
 				StartCoroutine (StartCountDown());
 				Destroy (activeSpoons [0]);
 				activeSpoons.RemoveAt (0);
@@ -88,15 +94,11 @@ public class PlayerController : MonoBehaviour {
 				instSpoon = Instantiate (temp, temp.transform.position, temp.transform.rotation) as GameObject;
 				activeSpoons.Add (instSpoon);
 				marbles.transform.position = marblesPos;
-			} else if (distance > 60 && indexSendok < 2) {
-				StartCoroutine (StartCountDown());
-				Destroy (activeSpoons [0]);
-				activeSpoons.RemoveAt (0);
-				indexSendok += 1;
-				GameObject temp = (GameObject)listOfSpoons.GetValue (indexSendok);
-				instSpoon = Instantiate (temp, temp.transform.position, temp.transform.rotation) as GameObject;
-				activeSpoons.Add (instSpoon);
-				marbles.transform.position = marblesPos;
+			}
+
+			//notification
+			if((distance > 27 && indexSendok < 1) || (distance > 57 && indexSendok < 2)) {
+				notif.enabled = true;
 			}
 
 			// Score
@@ -154,20 +156,26 @@ public class PlayerController : MonoBehaviour {
 			ground2.GetComponent<GroundController> ().SetPause (true);
 
 			if (distance > 0) {
-				countdownText.text = "Ganti Sendok";
-				yield return new WaitForSeconds (1f);
+				scoreText.enabled = false;
+				distanceText.enabled = false;
+
+				panel.SetActive (true);
+				countdownText.text = "Checkpoint " + checkPoint;
+				yield return new WaitForSeconds (2.0f);
+				countdownText.text = "Relax and reset your head position";
+				yield return new WaitForSeconds (2.0f);
+				panel.SetActive (false);
+
+				scoreText.enabled = true;
+				distanceText.enabled = true;
 			}
 
-			countdownText.text = "3";
-			yield return new WaitForSeconds (1f);
-			countdownText.text = "2";
-			yield return new WaitForSeconds (1f);
-			countdownText.text = "1";
-			yield return new WaitForSeconds (1f);
-
-			countdownText.text = "Start !";
+			countdownText.text = "Ready !";
+			yield return new WaitForSeconds (1.5f);
+			countdownText.text = "Go !";
 			yield return new WaitForSeconds (0.5f);
 
+			checkPoint++;
 			countdownText.text = "";
 			isPaused = false;
 			marbles.GetComponent<MarbleController> ().SetPause (false);
