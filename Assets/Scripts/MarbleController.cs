@@ -6,14 +6,16 @@ public class MarbleController : MonoBehaviour {
 
 	private Rigidbody rb;
 
+	private Vector3 marblesPos;
+
 	public Camera gameCamera;
-	public float collisionFactor = 10.0f;
 
 	public GameObject player;
 
 	private bool isPaused;
 
 	void Start () {
+		marblesPos = transform.position;
 		isPaused = true;
 		rb = GetComponent<Rigidbody> ();
 	}
@@ -22,10 +24,9 @@ public class MarbleController : MonoBehaviour {
 		if (!isPaused) {
 			rb.isKinematic = false;
 			rb.WakeUp ();
-			//rb.AddForce (new Vector3 (gameCamera.transform.rotation.z * -1, 0, gameCamera.transform.rotation.x) * collisionFactor);
-			//rb.AddForce(Input.acceleration * 5.0f);
 		} else {
 			rb.isKinematic = true;
+			transform.position = marblesPos;
 		}
 	}
 

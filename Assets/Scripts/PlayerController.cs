@@ -47,7 +47,6 @@ public class PlayerController : MonoBehaviour {
 		endGame = false;
 		isPaused = true;
 		isBallProbablyFall = false;
-		marblesPos = marbles.transform.position;
 	}
 
 	void Start() {
@@ -84,7 +83,7 @@ public class PlayerController : MonoBehaviour {
 			}
 
 			// check and change spoons
-			if ((distance > 30 && distance <= 60 && indexSendok < 1) ||
+			if ((distance > 10 && distance <= 60 && indexSendok < 1) ||
 				(distance > 60 && indexSendok < 2) ) {
 				StartCoroutine (StartCountDown());
 				Destroy (activeSpoons [0]);
@@ -93,12 +92,15 @@ public class PlayerController : MonoBehaviour {
 				GameObject temp = (GameObject)listOfSpoons.GetValue (indexSendok);
 				instSpoon = Instantiate (temp, temp.transform.position, temp.transform.rotation) as GameObject;
 				activeSpoons.Add (instSpoon);
-				marbles.transform.position = marblesPos;
 			}
 
 			//notification
-			if((distance > 27 && indexSendok < 1) || (distance > 57 && indexSendok < 2)) {
+			if (distance > 4 && indexSendok < 1) {
 				notif.enabled = true;
+				notif.text = "Distance until checkpoint : " + (int)(10 - distance) + " m";
+			} else if (distance > 49 && indexSendok < 2) {
+				notif.enabled = true;
+				notif.text = "Distance until checkpoint : " + (int)(60 - distance) + " m";
 			}
 
 			// Score
@@ -140,6 +142,7 @@ public class PlayerController : MonoBehaviour {
 	}
 
 	private void CleanUp() {
+		Destroy (notif);
 		Destroy (countdownText);
 		Destroy (ground1);
 		Destroy (ground2);
@@ -149,8 +152,10 @@ public class PlayerController : MonoBehaviour {
 	}
 
 	IEnumerator StartCountDown() {
-		if (!endGame && !isBallProbablyFall) {
+		if (!endGame) {
+			marbles.transform.SetParent (null);
 			isPaused = true;
+			notif.enabled = false;
 			marbles.GetComponent<MarbleController> ().SetPause (true);
 			ground1.GetComponent<GroundController> ().SetPause (true);
 			ground2.GetComponent<GroundController> ().SetPause (true);
@@ -182,6 +187,7 @@ public class PlayerController : MonoBehaviour {
 			ground1.GetComponent<GroundController> ().SetPause (false);
 			ground2.GetComponent<GroundController> ().SetPause (false);
 			instSpoon.transform.SetParent (gameCam.transform);
+			marbles.transform.SetParent (instSpoon.transform, true);
 		}
 	}
 }
