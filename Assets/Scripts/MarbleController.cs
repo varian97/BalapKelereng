@@ -8,13 +8,17 @@ public class MarbleController : MonoBehaviour {
 
 	private Vector3 marblesPos;
 
-	public Camera gameCamera;
-
-	public GameObject player;
+	[SerializeField]
+	private Camera gameCamera;
+	[SerializeField]
+	private GameObject player;
 
 	private bool isPaused;
 
 	void Start () {
+		gameCamera = GameObject.Find ("Camera").GetComponent<Camera>();
+		player = GameObject.Find ("PlayerPos");
+
 		marblesPos = transform.position;
 		isPaused = true;
 		rb = GetComponent<Rigidbody> ();

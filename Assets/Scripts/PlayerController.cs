@@ -12,10 +12,13 @@ public class PlayerController : MonoBehaviour {
 	public GameObject ground1;
 	public GameObject ground2;
 
-	public GameObject marbles;
 	private Vector3 marblesPos;
+	private GameObject instMarble;
+	private Object[] listOfMarbles;
+	private int indexMarble;
+	private List<GameObject> activeMarble;
+	private GameObject empty;
 
-	public GameObject parentSpoon;
 	private GameObject instSpoon;
 	private Object[] listOfSpoons;
 	private int indexSendok;
@@ -38,22 +41,39 @@ public class PlayerController : MonoBehaviour {
 
 	void Awake () {
 		listOfSpoons = Resources.LoadAll ("Spoons", typeof(GameObject));
+		listOfMarbles = Resources.LoadAll ("Balls", typeof(GameObject));
 		activeSpoons = new List<GameObject> ();
+		activeMarble = new List<GameObject> ();
+
+		indexMarble = 0;
 		indexSendok = 0;
+
 		distance = 0;
 		score = 0;
 		checkPoint = 0;
+
 		instSpoon = null;
+		instMarble = null;
+
 		endGame = false;
 		isPaused = true;
 		isBallProbablyFall = false;
+
+		empty = new GameObject ();
 	}
 
 	void Start() {
-		StartCoroutine (StartCountDown());
+		// instantiate spoon
 		GameObject temp = (GameObject)listOfSpoons.GetValue (indexSendok);
 		instSpoon = Instantiate (temp, temp.transform.position, temp.transform.rotation) as GameObject;
 		activeSpoons.Add (instSpoon);
+
+		// instantiate marble
+		GameObject temp2 = (GameObject) listOfMarbles.GetValue(indexMarble);
+		instMarble = Instantiate (temp2, temp2.transform.transform.position, temp2.transform.rotation) as GameObject;
+		activeMarble.Add (instMarble);
+
+		StartCoroutine (StartCountDown());
 	}
 
 	void Update () {
@@ -61,7 +81,10 @@ public class PlayerController : MonoBehaviour {
 		if (endGame) {
 			GameOver ();
 		} else if (!endGame && !isPaused) {
+			// update the distance to finish
 			distance += Time.deltaTime;
+
+			// spawn the road if player pos near the end of the prefabs
 			if (transform.position.z > ground1.transform.position.z) {
 				if (Vector3.Distance (transform.position, ground2.transform.position) < 101.6f) {
 					float x = ground2.transform.position.x;
@@ -82,16 +105,29 @@ public class PlayerController : MonoBehaviour {
 				}
 			}
 
-			// check and change spoons
+			// check then change spoons and marble
 			if ((distance > 10 && distance <= 60 && indexSendok < 1) ||
 				(distance > 60 && indexSendok < 2) ) {
-				StartCoroutine (StartCountDown());
+
+				// destroy the current spoon and marble
 				Destroy (activeSpoons [0]);
 				activeSpoons.RemoveAt (0);
+				Destroy (activeMarble[0]);
+				activeMarble.RemoveAt (0);
+
 				indexSendok += 1;
+				indexMarble += 1;
+
+				//instantiate the new marble and spoon
 				GameObject temp = (GameObject)listOfSpoons.GetValue (indexSendok);
 				instSpoon = Instantiate (temp, temp.transform.position, temp.transform.rotation) as GameObject;
 				activeSpoons.Add (instSpoon);
+
+				GameObject temp2 = (GameObject)listOfMarbles.GetValue (indexMarble);
+				instMarble = Instantiate (temp2, temp2.transform.transform.position, temp2.transform.rotation) as GameObject;
+				activeMarble.Add (instMarble);
+
+				StartCoroutine (StartCountDown());
 			}
 
 			//notification
@@ -146,17 +182,20 @@ public class PlayerController : MonoBehaviour {
 		Destroy (countdownText);
 		Destroy (ground1);
 		Destroy (ground2);
-		Destroy (marbles);
-		Destroy (parentSpoon);
 		Destroy (instSpoon);
+		Destroy (instMarble);
 	}
 
 	IEnumerator StartCountDown() {
 		if (!endGame) {
-			marbles.transform.SetParent (null);
+			// unparent the marble from the spoon
+			empty.transform.SetParent (null);
+			instMarble.transform.SetParent (transform);
+
+			// set pause and notif
 			isPaused = true;
 			notif.enabled = false;
-			marbles.GetComponent<MarbleController> ().SetPause (true);
+			instMarble.GetComponent<MarbleController> ().SetPause (true);
 			ground1.GetComponent<GroundController> ().SetPause (true);
 			ground2.GetComponent<GroundController> ().SetPause (true);
 
@@ -182,12 +221,17 @@ public class PlayerController : MonoBehaviour {
 
 			checkPoint++;
 			countdownText.text = "";
+
+			// unpause
 			isPaused = false;
-			marbles.GetComponent<MarbleController> ().SetPause (false);
+			instMarble.GetComponent<MarbleController> ().SetPause (false);
 			ground1.GetComponent<GroundController> ().SetPause (false);
 			ground2.GetComponent<GroundController> ().SetPause (false);
+
+			// re-parent the marble to the new spoon
 			instSpoon.transform.SetParent (gameCam.transform);
-			marbles.transform.SetParent (instSpoon.transform, true);
+			empty.transform.SetParent (instSpoon.transform);
+			instMarble.transform.SetParent (empty.transform, true);
 		}
 	}
 }
