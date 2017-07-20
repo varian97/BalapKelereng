@@ -10,7 +10,7 @@ public class PlayerController : MonoBehaviour {
 	private bool endGame, isPaused, isBallProbablyFall;
 
 	public GameObject ground1;
-	public GameObject ground2;
+	public GameObject finish;
 
 	private Vector3 marblesPos;
 	private GameObject instMarble;
@@ -29,8 +29,9 @@ public class PlayerController : MonoBehaviour {
 	public GameObject gameOverImage;
 	public GameObject finishImage;
 
-	public float distanceToWin = 30f;
+	//public float distanceToWin = 30f;
 	private float distance;
+	private float initialDistance;
 	public Text distanceText;
 
 	public Text countdownText;
@@ -47,6 +48,8 @@ public class PlayerController : MonoBehaviour {
 
 		indexMarble = 0;
 		indexSendok = 0;
+
+		initialDistance =  Vector3.Distance(transform.position, new Vector3(transform.position.x, transform.position.y, finish.transform.position.z));
 
 		distance = 0;
 		score = 0;
@@ -82,32 +85,11 @@ public class PlayerController : MonoBehaviour {
 			GameOver ();
 		} else if (!endGame && !isPaused) {
 			// update the distance to finish
-			distance += Time.deltaTime;
-
-			// spawn the road if player pos near the end of the prefabs
-			if (transform.position.z > ground1.transform.position.z) {
-				if (Vector3.Distance (transform.position, ground2.transform.position) < 101.6f) {
-					float x = ground2.transform.position.x;
-					float y = ground2.transform.position.y;
-					float z = ground2.transform.position.z + 152.6f;
-
-					ground1.transform.position = new Vector3 (x, y, z);
-				}
-			}
-
-			if (transform.position.z > ground2.transform.position.z) {
-				if (Vector3.Distance (transform.position, ground1.transform.position) < 75f) {
-					float x = ground1.transform.position.x;
-					float y = ground1.transform.position.y;
-					float z = ground1.transform.position.z + 161.1f;
-
-					ground2.transform.position = new Vector3 (x, y, z);
-				}
-			}
+			distance = Vector3.Distance(transform.position, new Vector3(transform.position.x, transform.position.y, finish.transform.position.z));
 
 			// check then change spoons and marble
-			if ((distance > 10 && distance <= 60 && indexSendok < 1) ||
-				(distance > 60 && indexSendok < 2) ) {
+			if ((distance < ((initialDistance*2)/3) && distance >= (initialDistance/3) && indexSendok < 1) ||
+				(distance < (initialDistance/3) && indexSendok < 2) ) {
 
 				// destroy the current spoon and marble
 				Destroy (activeSpoons [0]);
@@ -131,25 +113,25 @@ public class PlayerController : MonoBehaviour {
 			}
 
 			//notification
-			if (distance > 4 && indexSendok < 1) {
+			if (distance <= ((initialDistance*2)/3) + 5 && indexSendok < 1) {
 				notif.enabled = true;
-				notif.text = "Distance until checkpoint : " + (int)(10 - distance) + " m";
-			} else if (distance > 49 && indexSendok < 2) {
+				notif.text = "Distance until checkpoint : " + (int)(distance - ((initialDistance*2)/3)) + " m";
+			} else if (distance < (initialDistance/3) + 5 && indexSendok < 2) {
 				notif.enabled = true;
-				notif.text = "Distance until checkpoint : " + (int)(60 - distance) + " m";
+				notif.text = "Distance until checkpoint : " + (int)(distance - (initialDistance/3)) + " m";
 			}
 
 			// Score
-			if (distance <= 10) {
+			if (distance >= ((initialDistance*2)/3)) {
 				score += Time.deltaTime;
 			} else {
-				score += distance * Time.deltaTime;
+				score += indexSendok * Time.deltaTime;
 			}
 			scoreText.text = "Score : " + (int)score;
 
 			// Distance 
-			distanceText.text = "Distance to Finish : " + ((int)(distanceToWin - distance)) + "m";
-			if (distance >= distanceToWin) {
+			distanceText.text = "Distance to Finish : " + ((int)distance/10) + "m";
+			if ((int)distance <= 0) {
 				FinishGame ();
 			}
 
@@ -181,7 +163,6 @@ public class PlayerController : MonoBehaviour {
 		Destroy (notif);
 		Destroy (countdownText);
 		Destroy (ground1);
-		Destroy (ground2);
 		Destroy (instSpoon);
 		Destroy (instMarble);
 	}
@@ -197,7 +178,6 @@ public class PlayerController : MonoBehaviour {
 			notif.enabled = false;
 			instMarble.GetComponent<MarbleController> ().SetPause (true);
 			ground1.GetComponent<GroundController> ().SetPause (true);
-			ground2.GetComponent<GroundController> ().SetPause (true);
 
 			if (distance > 0) {
 				scoreText.enabled = false;
@@ -226,7 +206,6 @@ public class PlayerController : MonoBehaviour {
 			isPaused = false;
 			instMarble.GetComponent<MarbleController> ().SetPause (false);
 			ground1.GetComponent<GroundController> ().SetPause (false);
-			ground2.GetComponent<GroundController> ().SetPause (false);
 
 			// re-parent the marble to the new spoon
 			instSpoon.transform.SetParent (gameCam.transform);
