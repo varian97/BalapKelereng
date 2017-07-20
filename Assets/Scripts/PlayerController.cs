@@ -125,7 +125,7 @@ public class PlayerController : MonoBehaviour {
 			if (distance >= ((initialDistance*2)/3)) {
 				score += Time.deltaTime;
 			} else {
-				score += indexSendok * Time.deltaTime;
+				score += (indexSendok + 1) * Time.deltaTime;
 			}
 			scoreText.text = "Score : " + (int)score;
 
