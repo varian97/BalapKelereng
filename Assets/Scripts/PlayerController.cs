@@ -66,6 +66,8 @@ public class PlayerController : MonoBehaviour {
 	}
 
 	void Start() {
+		Debug.Log (initialDistance);
+
 		// instantiate spoon
 		GameObject temp = (GameObject)listOfSpoons.GetValue (indexSendok);
 		instSpoon = Instantiate (temp, temp.transform.position, temp.transform.rotation) as GameObject;
@@ -88,8 +90,14 @@ public class PlayerController : MonoBehaviour {
 			distance = Vector3.Distance(transform.position, new Vector3(transform.position.x, transform.position.y, finish.transform.position.z));
 
 			// check then change spoons and marble
-			if ((distance < ((initialDistance*2)/3) && distance >= (initialDistance/3) && indexSendok < 1) ||
-				(distance < (initialDistance/3) && indexSendok < 2) ) {
+			if ((distance < ((initialDistance*8)/9) && distance >= (initialDistance/3) && indexSendok < 1) ||
+				(distance < (initialDistance*7/9) && indexSendok < 2) || 
+				(distance < (initialDistance*6/9) && indexSendok < 3) ||
+				(distance < (initialDistance*5/9) && indexSendok < 4) ||
+				(distance < (initialDistance*4/9) && indexSendok < 5) ||
+				(distance < (initialDistance*3/9) && indexSendok < 6) ||
+				(distance < (initialDistance*2/9) && indexSendok < 7) ||
+				(distance < (initialDistance/9) && indexSendok < 8) ) {
 
 				// destroy the current spoon and marble
 				Destroy (activeSpoons [0]);
@@ -113,20 +121,34 @@ public class PlayerController : MonoBehaviour {
 			}
 
 			//notification
-			if (distance <= ((initialDistance*2)/3) + 5 && indexSendok < 1) {
+			if (distance <= ((initialDistance*8)/9) + 5 && indexSendok < 1) {
 				notif.enabled = true;
-				notif.text = "Distance until checkpoint : " + (int)(distance - ((initialDistance*2)/3)) + " m";
-			} else if (distance < (initialDistance/3) + 5 && indexSendok < 2) {
+				notif.text = "Distance until checkpoint : " + (int)(distance - ((initialDistance*8)/9)) + " m";
+			} else if (distance < (initialDistance*7/9) + 5 && indexSendok < 2) {
 				notif.enabled = true;
-				notif.text = "Distance until checkpoint : " + (int)(distance - (initialDistance/3)) + " m";
+				notif.text = "Distance until checkpoint : " + (int)(distance - (initialDistance*7/9)) + " m";
+			} else if (distance < (initialDistance*6/9) + 5 && indexSendok < 3) {
+				notif.enabled = true;
+				notif.text = "Distance until checkpoint : " + (int)(distance - (initialDistance*6/9)) + " m";
+			} else if (distance < (initialDistance*5/9) + 5 && indexSendok < 4) {
+				notif.enabled = true;
+				notif.text = "Distance until checkpoint : " + (int)(distance - (initialDistance*5/9)) + " m";
+			} else if (distance < (initialDistance*4/9) + 5 && indexSendok < 5) {
+				notif.enabled = true;
+				notif.text = "Distance until checkpoint : " + (int)(distance - (initialDistance*4/9)) + " m";
+			} else if (distance < (initialDistance*3/9) + 5 && indexSendok < 6) {
+				notif.enabled = true;
+				notif.text = "Distance until checkpoint : " + (int)(distance - (initialDistance*3/9)) + " m";
+			} else if (distance < (initialDistance*2/9) + 5 && indexSendok < 7) {
+				notif.enabled = true;
+				notif.text = "Distance until checkpoint : " + (int)(distance - (initialDistance*2/9)) + " m";
+			} else if (distance < (initialDistance/9) + 5 && indexSendok < 8) {
+				notif.enabled = true;
+				notif.text = "Distance until checkpoint : " + (int)(distance - (initialDistance/9)) + " m";
 			}
 
 			// Score
-			if (distance >= ((initialDistance*2)/3)) {
-				score += Time.deltaTime;
-			} else {
-				score += (indexSendok + 1) * Time.deltaTime;
-			}
+			score += (indexSendok + 1) * Time.deltaTime;
 			scoreText.text = "Score : " + (int)score;
 
 			// Distance 
@@ -209,8 +231,9 @@ public class PlayerController : MonoBehaviour {
 
 			// re-parent the marble to the new spoon
 			instSpoon.transform.SetParent (gameCam.transform);
-			empty.transform.SetParent (instSpoon.transform);
-			instMarble.transform.SetParent (empty.transform, true);
+			instMarble.transform.SetParent (gameCam.transform, true);
+			empty.transform.SetParent (instSpoon.transform, true);
+
 		}
 	}
 }
