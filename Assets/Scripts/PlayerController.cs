@@ -26,10 +26,10 @@ public class PlayerController : MonoBehaviour {
 
 	public Text scoreText;
 	private float score;
+	private float scoreWhenCheckPoint;
 	public GameObject gameOverImage;
 	public GameObject finishImage;
 
-	//public float distanceToWin = 30f;
 	private float distance;
 	private float initialDistance;
 	public Text distanceText;
@@ -39,6 +39,13 @@ public class PlayerController : MonoBehaviour {
 	public GameObject panel;
 
 	public Text notif;
+
+	private float gameOverTime;
+
+	private Vector3 groundPositionWhenCheckPoint;
+	private Vector3 ballRotationWhenCheckPoint;
+	private Vector3 spoonPositionWhenCheckPoint;
+	private Vector3 spoonRotationWhenCheckPoint;
 
 	void Awake () {
 		listOfSpoons = Resources.LoadAll ("Spoons", typeof(GameObject));
@@ -63,6 +70,8 @@ public class PlayerController : MonoBehaviour {
 		isBallProbablyFall = false;
 
 		empty = new GameObject ();
+
+		gameOverTime = 120f;
 	}
 
 	void Start() {
@@ -82,10 +91,12 @@ public class PlayerController : MonoBehaviour {
 	}
 
 	void Update () {
-
 		if (endGame) {
 			GameOver ();
 		} else if (!endGame && !isPaused) {
+			if(gameOverTime > 0f)
+				gameOverTime -= Time.deltaTime;
+
 			// update the distance to finish
 			distance = Vector3.Distance(transform.position, new Vector3(transform.position.x, transform.position.y, finish.transform.position.z));
 
@@ -169,11 +180,17 @@ public class PlayerController : MonoBehaviour {
 	}
 
 	private void GameOver() {
-		distanceText.color = Color.white;
-		scoreText.color = Color.white;
-		gameOverImage.SetActive(true);
-		pointer.SetActive (true);
-		CleanUp ();
+		if (gameOverTime <= 0.0f) {
+			distanceText.color = Color.white;
+			scoreText.color = Color.white;
+			gameOverImage.SetActive (true);
+			pointer.SetActive (true);
+			CleanUp ();
+		} else {
+			endGame = false;
+			isPaused = true;
+			StartCoroutine (StartRetryCountdown());
+		}
 	}
 
 	private void FinishGame() {
@@ -194,8 +211,16 @@ public class PlayerController : MonoBehaviour {
 	}
 
 	IEnumerator StartCountDown() {
+		// record the position
+		groundPositionWhenCheckPoint = ground1.transform.position;
+		ballRotationWhenCheckPoint = instMarble.transform.eulerAngles;
+		spoonPositionWhenCheckPoint = instSpoon.transform.position;
+		spoonRotationWhenCheckPoint = instSpoon.transform.eulerAngles;
+
+		scoreWhenCheckPoint = score;
+
 		if (!endGame) {
-			// unparent the marble from the spoon
+			// unparent 
 			empty.transform.SetParent (null);
 			instMarble.transform.SetParent (transform);
 
@@ -239,5 +264,50 @@ public class PlayerController : MonoBehaviour {
 			empty.transform.SetParent (instSpoon.transform, true);
 
 		}
+	}
+
+	IEnumerator StartRetryCountdown() {
+		// reset the positon
+		ground1.transform.position = groundPositionWhenCheckPoint;
+		instMarble.transform.eulerAngles = ballRotationWhenCheckPoint;
+		instSpoon.transform.position = spoonPositionWhenCheckPoint;
+		instSpoon.transform.eulerAngles = spoonRotationWhenCheckPoint;
+
+		score = scoreWhenCheckPoint;
+
+		//unparent
+		instSpoon.transform.SetParent(null);
+		empty.transform.SetParent (null);
+		instMarble.transform.SetParent (null);
+
+		// set pause and notif
+		scoreText.text = "";
+		distanceText.text = "";
+
+		isPaused = true;
+		notif.enabled = false;
+		instMarble.GetComponent<MarbleController> ().SetPause (true);
+		ground1.GetComponent<GroundController> ().SetPause (true);
+
+		countdownText.text = "Don't Give Up, TRY AGAIN !";
+		yield return new WaitForSeconds (3.0f);
+		countdownText.text = "Ready !";
+		yield return new WaitForSeconds (1.5f);
+		countdownText.text = "Go !";
+		yield return new WaitForSeconds (0.5f);
+
+		countdownText.text = "";
+		scoreText.text = scoreText.text = "Score : " + (int)score;
+		distanceText.text = "Distance to Finish : " + ((int)distance/10) + "m";
+
+		// re-parent
+		instSpoon.transform.SetParent (gameCam.transform);
+		empty.transform.SetParent (instSpoon.transform, true);
+		instMarble.transform.SetParent (gameCam.transform);
+
+		// unpause
+		isPaused = false;
+		instMarble.GetComponent<MarbleController> ().SetPause (false);
+		ground1.GetComponent<GroundController> ().SetPause (false);
 	}
 }
