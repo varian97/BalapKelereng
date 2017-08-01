@@ -169,6 +169,8 @@ public class PlayerController : MonoBehaviour {
 	}
 
 	private void GameOver() {
+		distanceText.color = Color.white;
+		scoreText.color = Color.white;
 		gameOverImage.SetActive(true);
 		pointer.SetActive (true);
 		CleanUp ();
@@ -177,6 +179,8 @@ public class PlayerController : MonoBehaviour {
 	private void FinishGame() {
 		distanceText.text = "";
 		pointer.SetActive (true);
+		distanceText.color = Color.white;
+		scoreText.color = Color.white;
 		finishImage.SetActive (true);
 		CleanUp ();
 	}
