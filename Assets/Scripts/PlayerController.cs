@@ -47,6 +47,8 @@ public class PlayerController : MonoBehaviour {
 	private Vector3 spoonPositionWhenCheckPoint;
 	private Vector3 spoonRotationWhenCheckPoint;
 
+	private int countgagal;
+
 	void Awake () {
 		listOfSpoons = Resources.LoadAll ("Spoons", typeof(GameObject));
 		listOfMarbles = Resources.LoadAll ("Balls", typeof(GameObject));
@@ -72,6 +74,8 @@ public class PlayerController : MonoBehaviour {
 		empty = new GameObject ();
 
 		gameOverTime = 120f;
+
+		countgagal = 2;
 	}
 
 	void Start() {
@@ -101,62 +105,43 @@ public class PlayerController : MonoBehaviour {
 			distance = Vector3.Distance(transform.position, new Vector3(transform.position.x, transform.position.y, finish.transform.position.z));
 
 			// check then change spoons and marble
-			if ((distance < ((initialDistance*8)/9) && distance >= (initialDistance/3) && indexSendok < 1) ||
-				(distance < (initialDistance*7/9) && indexSendok < 2) || 
-				(distance < (initialDistance*6/9) && indexSendok < 3) ||
-				(distance < (initialDistance*5/9) && indexSendok < 4) ||
-				(distance < (initialDistance*4/9) && indexSendok < 5) ||
-				(distance < (initialDistance*3/9) && indexSendok < 6) ||
-				(distance < (initialDistance*2/9) && indexSendok < 7) ||
-				(distance < (initialDistance/9) && indexSendok < 8) ) {
+			if ((distance < ((initialDistance*7)/8) && distance >= (initialDistance/3) && indexSendok < 1) ||
+				(distance < (initialDistance*6/8) && indexSendok < 2) || 
+				(distance < (initialDistance*5/8) && indexSendok < 3) ||
+				(distance < (initialDistance*4/8) && indexSendok < 4) ||
+				(distance < (initialDistance*3/8) && indexSendok < 5) ||
+				(distance < (initialDistance*2/8) && indexSendok < 6) ||
+				(distance < (initialDistance*1/8) && indexSendok < 7)) {
 
-				// destroy the current spoon and marble
-				Destroy (activeSpoons [0]);
-				activeSpoons.RemoveAt (0);
-				Destroy (activeMarble[0]);
-				activeMarble.RemoveAt (0);
-
-				indexSendok += 1;
-				indexMarble += 1;
-
-				//instantiate the new marble and spoon
-				GameObject temp = (GameObject)listOfSpoons.GetValue (indexSendok);
-				instSpoon = Instantiate (temp, temp.transform.position, temp.transform.rotation) as GameObject;
-				activeSpoons.Add (instSpoon);
-
-				GameObject temp2 = (GameObject)listOfMarbles.GetValue (indexMarble);
-				instMarble = Instantiate (temp2, temp2.transform.transform.position, temp2.transform.rotation) as GameObject;
-				activeMarble.Add (instMarble);
+				// spawn next level
+				ChangeNextLevel ();
 
 				StartCoroutine (StartCountDown());
 			}
 
 			//notification
-			if (distance <= ((initialDistance*8)/9) + 5 && indexSendok < 1) {
+			if (distance <= ((initialDistance*7)/8) + 5 && indexSendok < 1) {
 				notif.enabled = true;
-				notif.text = "Distance until checkpoint : " + (int)(distance - ((initialDistance*8)/9)) + " m";
-			} else if (distance < (initialDistance*7/9) + 5 && indexSendok < 2) {
+				notif.text = "Distance until checkpoint : " + (int)(distance - ((initialDistance*7)/8)) + " m";
+			} else if (distance < (initialDistance*6/8) + 5 && indexSendok < 2) {
 				notif.enabled = true;
-				notif.text = "Distance until checkpoint : " + (int)(distance - (initialDistance*7/9)) + " m";
-			} else if (distance < (initialDistance*6/9) + 5 && indexSendok < 3) {
+				notif.text = "Distance until checkpoint : " + (int)(distance - (initialDistance*6/8)) + " m";
+			} else if (distance < (initialDistance*5/8) + 5 && indexSendok < 3) {
 				notif.enabled = true;
-				notif.text = "Distance until checkpoint : " + (int)(distance - (initialDistance*6/9)) + " m";
-			} else if (distance < (initialDistance*5/9) + 5 && indexSendok < 4) {
+				notif.text = "Distance until checkpoint : " + (int)(distance - (initialDistance*5/8)) + " m";
+			} else if (distance < (initialDistance*4/8) + 5 && indexSendok < 4) {
 				notif.enabled = true;
-				notif.text = "Distance until checkpoint : " + (int)(distance - (initialDistance*5/9)) + " m";
-			} else if (distance < (initialDistance*4/9) + 5 && indexSendok < 5) {
+				notif.text = "Distance until checkpoint : " + (int)(distance - (initialDistance*4/8)) + " m";
+			} else if (distance < (initialDistance*3/8) + 5 && indexSendok < 5) {
 				notif.enabled = true;
-				notif.text = "Distance until checkpoint : " + (int)(distance - (initialDistance*4/9)) + " m";
-			} else if (distance < (initialDistance*3/9) + 5 && indexSendok < 6) {
+				notif.text = "Distance until checkpoint : " + (int)(distance - (initialDistance*3/8)) + " m";
+			} else if (distance < (initialDistance*2/8) + 5 && indexSendok < 6) {
 				notif.enabled = true;
-				notif.text = "Distance until checkpoint : " + (int)(distance - (initialDistance*3/9)) + " m";
-			} else if (distance < (initialDistance*2/9) + 5 && indexSendok < 7) {
+				notif.text = "Distance until checkpoint : " + (int)(distance - (initialDistance*2/8)) + " m";
+			} else if (distance < (initialDistance/8) + 5 && indexSendok < 7) {
 				notif.enabled = true;
-				notif.text = "Distance until checkpoint : " + (int)(distance - (initialDistance*2/9)) + " m";
-			} else if (distance < (initialDistance/9) + 5 && indexSendok < 8) {
-				notif.enabled = true;
-				notif.text = "Distance until checkpoint : " + (int)(distance - (initialDistance/9)) + " m";
-			}
+				notif.text = "Distance until checkpoint : " + (int)(distance - (initialDistance/8)) + " m";
+			} 
 
 			// Score
 			score += (indexSendok + 1) * Time.deltaTime;
@@ -181,6 +166,8 @@ public class PlayerController : MonoBehaviour {
 
 	private void GameOver() {
 		if (gameOverTime <= 0.0f) {
+			scoreText.text = scoreText.text = "Score : " + (int)score;
+			distanceText.text = "Distance to Finish : " + ((int)distance/10) + "m";
 			distanceText.color = Color.white;
 			scoreText.color = Color.white;
 			gameOverImage.SetActive (true);
@@ -189,7 +176,28 @@ public class PlayerController : MonoBehaviour {
 		} else {
 			endGame = false;
 			isPaused = true;
-			StartCoroutine (StartRetryCountdown());
+			countgagal -= 1;
+			if (countgagal == 0) {
+				if (indexSendok == 7) {
+					scoreText.text = scoreText.text = "Score : " + (int)score;
+					distanceText.text = "Distance to Finish : " + ((int)distance / 10) + "m";
+					distanceText.color = Color.white;
+					scoreText.color = Color.white;
+					gameOverImage.SetActive (true);
+					pointer.SetActive (true);
+					CleanUp ();
+				} else {
+					countgagal = 2;
+
+					// spawn new level
+					ChangeNextLevel ();
+
+					ballRotationWhenCheckPoint = instMarble.transform.eulerAngles;
+					spoonPositionWhenCheckPoint = instSpoon.transform.position;
+					spoonRotationWhenCheckPoint = instSpoon.transform.eulerAngles;
+				}
+			}
+			StartCoroutine (StartRetryCountdown ());
 		}
 	}
 
@@ -210,6 +218,27 @@ public class PlayerController : MonoBehaviour {
 		Destroy (instMarble);
 	}
 
+
+	private void ChangeNextLevel() {
+		// destroy the current spoon and marble
+		Destroy (activeSpoons [0]);
+		activeSpoons.RemoveAt (0);
+		Destroy (activeMarble [0]);
+		activeMarble.RemoveAt (0);
+
+		indexSendok += 1;
+		indexMarble += 1;
+
+		//instantiate the new marble and spoon
+		GameObject temp = (GameObject)listOfSpoons.GetValue (indexSendok);
+		instSpoon = Instantiate (temp, temp.transform.position, temp.transform.rotation) as GameObject;
+		activeSpoons.Add (instSpoon);
+
+		GameObject temp2 = (GameObject)listOfMarbles.GetValue (indexMarble);
+		instMarble = Instantiate (temp2, temp2.transform.position, temp2.transform.rotation) as GameObject;
+		activeMarble.Add (instMarble);
+	}
+
 	IEnumerator StartCountDown() {
 		// record the position
 		groundPositionWhenCheckPoint = ground1.transform.position;
@@ -217,6 +246,7 @@ public class PlayerController : MonoBehaviour {
 		spoonPositionWhenCheckPoint = instSpoon.transform.position;
 		spoonRotationWhenCheckPoint = instSpoon.transform.eulerAngles;
 
+		countgagal = 2;
 		scoreWhenCheckPoint = score;
 
 		if (!endGame) {
@@ -268,12 +298,11 @@ public class PlayerController : MonoBehaviour {
 
 	IEnumerator StartRetryCountdown() {
 		// reset the positon
+		score = scoreWhenCheckPoint;
 		ground1.transform.position = groundPositionWhenCheckPoint;
 		instMarble.transform.eulerAngles = ballRotationWhenCheckPoint;
 		instSpoon.transform.position = spoonPositionWhenCheckPoint;
 		instSpoon.transform.eulerAngles = spoonRotationWhenCheckPoint;
-
-		score = scoreWhenCheckPoint;
 
 		//unparent
 		instSpoon.transform.SetParent(null);
