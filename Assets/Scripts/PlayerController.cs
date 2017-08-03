@@ -186,6 +186,7 @@ public class PlayerController : MonoBehaviour {
 					gameOverImage.SetActive (true);
 					pointer.SetActive (true);
 					CleanUp ();
+					return;
 				} else {
 					countgagal = 2;
 
