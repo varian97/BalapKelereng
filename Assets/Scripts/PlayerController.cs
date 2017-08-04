@@ -29,10 +29,12 @@ public class PlayerController : MonoBehaviour {
 	private float scoreWhenCheckPoint;
 	public GameObject gameOverImage;
 	public GameObject finishImage;
+	public GameObject scoreCanvas;
 
 	private float distance;
 	private float initialDistance;
 	public Text distanceText;
+	public GameObject distanceCanvas;
 
 	public Text countdownText;
 	private int checkPoint;
@@ -148,7 +150,7 @@ public class PlayerController : MonoBehaviour {
 			scoreText.text = "Score : " + (int)score;
 
 			// Distance 
-			distanceText.text = "Distance to Finish : " + ((int)distance/10) + "m";
+			distanceText.text = ((int)distance/10) + " m to go !";
 			if ((int)distance <= 0) {
 				FinishGame ();
 			}
@@ -166,10 +168,8 @@ public class PlayerController : MonoBehaviour {
 
 	private void GameOver() {
 		if (gameOverTime <= 0.0f) {
-			scoreText.text = scoreText.text = "Score : " + (int)score;
-			distanceText.text = "Distance to Finish : " + ((int)distance/10) + "m";
-			distanceText.color = Color.white;
-			scoreText.color = Color.white;
+			scoreCanvas.GetComponent<CanvasContentController> ().TransferScoreData ((int)score);
+			distanceCanvas.GetComponent<CanvasContentController> ().TransferDistanceData ((int)distance/10);
 			gameOverImage.SetActive (true);
 			pointer.SetActive (true);
 			CleanUp ();
@@ -179,10 +179,8 @@ public class PlayerController : MonoBehaviour {
 			countgagal -= 1;
 			if (countgagal == 0) {
 				if (indexSendok == 7) {
-					scoreText.text = scoreText.text = "Score : " + (int)score;
-					distanceText.text = "Distance to Finish : " + ((int)distance / 10) + "m";
-					distanceText.color = Color.white;
-					scoreText.color = Color.white;
+					scoreCanvas.GetComponent<CanvasContentController> ().TransferScoreData ((int)score);
+					distanceCanvas.GetComponent<CanvasContentController> ().TransferDistanceData ((int)distance/10);
 					gameOverImage.SetActive (true);
 					pointer.SetActive (true);
 					CleanUp ();
@@ -203,10 +201,8 @@ public class PlayerController : MonoBehaviour {
 	}
 
 	private void FinishGame() {
-		distanceText.text = "";
 		pointer.SetActive (true);
-		distanceText.color = Color.white;
-		scoreText.color = Color.white;
+		scoreCanvas.GetComponent<CanvasContentController> ().TransferScoreData ((int)score);
 		finishImage.SetActive (true);
 		CleanUp ();
 	}
@@ -328,7 +324,7 @@ public class PlayerController : MonoBehaviour {
 
 		countdownText.text = "";
 		scoreText.text = scoreText.text = "Score : " + (int)score;
-		distanceText.text = "Distance to Finish : " + ((int)distance/10) + "m";
+		distanceText.text = ((int)distance/10) + " m to go !";
 
 		// re-parent
 		instSpoon.transform.SetParent (gameCam.transform);
